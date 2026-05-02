@@ -12,35 +12,31 @@ IGNORE = {
     "italina lite dressing (pc)", "suntan lime vinaigrette",
     "sesame lime vinaigrette", "buttermilk dressing (pc)",
     "no nut basil pesto", "ranch buttermilk dressing (pc)",
-    "grape preserves", "teddy's peanut butter & grape jelly on wheat",
-    "1% milk 8z", "skim milk 8 oz.", "chocolate milk 8 oz.",
-    "can of coke", "can of diet coke", "tropicana orange juice 10z",
-    "cranberry lime seltzer", "pomegranate seltzer water",
-    "water alum can 12oz", "plain soy milk",
+    "grape preserves", "1% milk 8z", "skim milk 8 oz.",
+    "chocolate milk 8 oz.", "can of coke", "can of diet coke",
+    "tropicana orange juice 10z", "cranberry lime seltzer",
+    "pomegranate seltzer water", "water alum can 12oz", "plain soy milk",
     "hard cooked eggs", "cage free hard boiled eggs",
-    "salt", "pepper", "sugar", "creamer",
-    "lemon wedges", "sliced tomatoes", "sliced red onions",
-    "sliced avocado", "sliced cucumbers", "shredded carrots",
-    "peeled baby carrots", "baby arugula", "little leaf greens",
-    "leaf lettuce", "corn niblets", "cranberries", "grape tomatoes",
+    "salt", "pepper", "sugar", "creamer", "lemon wedges",
+    "sliced tomatoes", "sliced red onions", "sliced avocado",
+    "sliced cucumbers", "shredded carrots", "peeled baby carrots",
+    "baby arugula", "little leaf greens", "leaf lettuce",
+    "corn niblets", "cranberries", "grape tomatoes",
     "sliced white american cheese", "mozzarella, tomato & basil wrap",
     "wheat tortillas", "gluten free white bread", "hearty white bread",
     "homemade white bread", "ham & swiss on hearty wheat",
-    "turkey & cheddar on wheat", "turkey & ckeddar on gluten free wrap",
-    "turkey & cheddar on gluten free wrap",
-    "tuna salad and lettuce on spinach wrap",
-    "chicken and lettuce wrap", "bread, hearty wheat",
-    "gluten free multi grain bread", "assorted bagels",
-    "oatmeal raisin cookies", "daily baked cookie",
+    "turkey & cheddar on wheat", "turkey & cheddar on gluten free wrap",
+    "tuna salad and lettuce on spinach wrap", "chicken and lettuce wrap",
+    "bread, hearty wheat", "gluten free multi grain bread",
+    "assorted bagels", "oatmeal raisin cookies", "daily baked cookie",
     "pastry of the day", "orange soft serve", "raspberry soft serve",
-    "quaker instant oatmeal cups", "granola",
-    "all natural peanut butter", "fruit, bananas", "fruit, local apples",
-    "fruit, oranges", "diced onions", "mustard packets",
-    "huds boom sauce", "kalamata olives", "kalamala olives",
-    "chips, cape cod", "pretzel twists", "suntan pepper strips",
-    "kosher dill pickle chips", "portobello saltado",
-    "flaked tuna", "fly by harvest salad",
-    "cream cheese packets asst.", "hard cooked eggs",
+    "quaker instant oatmeal cups", "granola", "all natural peanut butter",
+    "fruit, bananas", "fruit, local apples", "fruit, oranges",
+    "diced onions", "mustard packets", "huds boom sauce",
+    "kalamata olives", "kalamala olives", "chips, cape cod",
+    "pretzel twists", "suntan pepper strips", "kosher dill pickle chips",
+    "portobello saltado", "flaked tuna", "fly by harvest salad",
+    "cream cheese packets asst.", "teddy's peanut butter & grape jelly on wheat",
 }
 
 CATEGORIES = {
@@ -72,30 +68,30 @@ def menu():
         meal_int = int(meal_str)
     except ValueError:
         meal_int = 1
-
     if meal_int not in [0, 1, 2]:
         meal_int = 1
 
     menu_resp = requests.get(
         "https://api.cs50.io/dining/menus",
-        params={"location": LOCATION, "date": today, "meal": meal_int}
+        params={"location": LOCATION, "date": today, "meal": meal_int},
+        timeout=10
     ).json()
 
-recipe_ids = list({item["recipe"] for item in menu_resp})
-names = []
-session = requests.Session()
-for rid in recipe_ids:
-    try:
-        r = session.get(
-            f"https://api.cs50.io/dining/recipes/{rid}",
-            timeout=5
-        ).json()
-        name = r["name"]
-        if name.lower() not in IGNORE:
-            names.append(name)
-    except Exception:
-        pass
-session.close()
+    recipe_ids = list({item["recipe"] for item in menu_resp})
+    names = []
+    session = requests.Session()
+    for rid in recipe_ids:
+        try:
+            r = session.get(
+                "https://api.cs50.io/dining/recipes/" + str(rid),
+                timeout=5
+            ).json()
+            name = r["name"]
+            if name.lower() not in IGNORE:
+                names.append(name)
+        except Exception:
+            pass
+    session.close()
 
     categorized = {}
     for name in sorted(names):
