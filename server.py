@@ -82,12 +82,20 @@ def menu():
     ).json()
 
     recipe_ids = list({item["recipe"] for item in menu_resp})
-    names = []
-    for rid in recipe_ids:
-        r = requests.get(f"https://api.cs50.io/dining/recipes/{rid}").json()
+names = []
+session = requests.Session()
+for rid in recipe_ids:
+    try:
+        r = session.get(
+            f"https://api.cs50.io/dining/recipes/{rid}",
+            timeout=5
+        ).json()
         name = r["name"]
         if name.lower() not in IGNORE:
             names.append(name)
+    except Exception:
+        pass
+session.close()
 
     categorized = {}
     for name in sorted(names):
