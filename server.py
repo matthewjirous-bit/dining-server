@@ -81,7 +81,7 @@ def menu():
         params={"location": LOCATION, "date": today, "meal": meal_int}
     ).json()
 
-    recipe_ids = list({item["recipe"] for item in menu_resp})
+recipe_ids = list({item["recipe"] for item in menu_resp})
 names = []
 session = requests.Session()
 for rid in recipe_ids:
